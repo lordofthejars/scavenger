@@ -1,0 +1,128 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="sh-congrats">
+  <template>
+    <style>
+      :host {
+        display: block;
+        box-sizing: border-box;
+        min-height: 100%;
+        color: #666;
+      }
+
+      .header {
+        text-align: center;
+        background-image: linear-gradient(to bottom, #93eaf9, #53eaf9);
+        background-color: #53eaf9;
+        margin: -2rem -2rem 0 -2rem;
+        padding: 1.5rem 2rem 3rem 2rem;
+        box-sizing: border-box;
+        position: relative;
+      }
+
+      .header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: -1px;
+        width: 100%;
+        background-image: url(/images/clouds-top.svg);
+        background-position: bottom center;
+        background-repeat: no-repeat;
+        background-size: 110% auto;
+      }
+
+      .header img {
+        display: inline-block;
+        width: 118px;
+      }
+
+      .body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      sh-avatar {
+        height: 100px;
+        width: 100px;
+      }
+
+      h1 {
+        margin: 1rem 0 1rem 0;
+        color: #3bcbf8;
+        text-shadow: 2px 2px 0 #027f7f;
+        font-family: 'bangers', sans-serif;
+        letter-spacing: 2px;
+        text-align: center;
+        position: relative;
+      }
+
+      h2 {
+        margin: 0;
+        color: #444;
+      }
+
+      p {
+        text-align: center;
+        margin-top: 0;
+        margin-bottom: 0rem;
+      }
+
+      .challange__button {
+        color: white;
+        display: block;
+        width: 100%;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 400px;
+        text-transform: uppercase;
+        font-size: 1.2rem;
+        border: 0;
+        background-color: #20a300;
+        text-shadow: 2px 2px 0 #027f7f;
+        font-family: 'Overpass', sans-serif;
+        letter-spacing: 2px;
+      }
+
+      p {
+        font-size: 1.3rem;
+        margin: 1.5rem 0rem;
+        font-family: 'Overpass', sans-serif;
+        color: #444;
+      }
+
+    </style>
+    <div class="header">
+      <img src="/images/ico-leaders.png" alt="Leaderboard: Icon of a trpphy">
+    </div>
+    <div class="body">
+      <h1>Congratulations!</h1>
+      <p>You have completed the Story Mode.</p>
+      <!-- <p>Don't let the fun end here.</p> -->
+      <p>Keep playing!</p>
+      <button on-click="goToPartyIsland" class="challange__button">Go to Party Island</button>
+    </div>
+  </template>
+
+  <script>
+    class ShCongrats extends Polymer.Element {
+      static get is() { return 'sh-congrats'; }
+
+      goToPartyIsland() {
+        const customEvent = new CustomEvent('open-party-island', {
+          bubbles: true,
+          composed: true,
+          detail: {
+            closePanel: true
+          }
+        });
+
+        this.dispatchEvent(customEvent);
+      }
+    }
+
+    window.customElements.define(ShCongrats.is, ShCongrats);
+  </script>
+</dom-module>

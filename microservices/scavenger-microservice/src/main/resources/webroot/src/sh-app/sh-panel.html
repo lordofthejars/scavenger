@@ -1,0 +1,96 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="sh-panel">
+  <template>
+    <style>
+      :host {
+        display: block;
+        min-height: 100%;
+        background-color: rgba(255, 255, 255, 1);
+        box-sizing: border-box;
+        padding: 2rem;
+        position: relative;
+        padding-bottom: 4rem;
+      }
+
+      button {
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 2;
+        background-color: transparent;
+        border: 0;
+        padding: 1rem;
+      }
+
+      ul {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: space-between;
+        padding: 4rem 2rem 1rem 2rem;
+        list-style-type: none;
+        margin: 0;
+        font-family: 'bangers', sans-serif;
+        color: #444;
+        z-index: 4;
+        /* filter */
+      }
+
+      ul::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background-image: url(/images/bottom-clouds.svg);
+        background-position: top center;
+        background-repeat: no-repeat;
+        background-size: 110% auto;
+        z-index: -1;
+      }
+
+
+    </style>
+
+    <template is="dom-if" if="[[!disableClose]]" restamp="true">
+      <button on-click="closePanel">
+        <img src="/images/x.svg" alt="">
+      </button>
+
+    </template>
+    <slot></slot>
+  </template>
+
+  <script>
+    class ShPanel extends Polymer.Element {
+      static get is() { return 'sh-panel' };
+
+      static get properties () {
+        return {
+          disableClose: {
+            type: Boolean,
+            value: false
+          }
+        };
+      }
+
+      closePanel(event) {
+        const customEvent = new CustomEvent('nav-item-close', {
+          bubbles: true,
+          composed: true,
+          detail: {
+            panel: this.getAttribute('name')
+          }
+        });
+
+        this.dispatchEvent(customEvent);
+      }
+    }
+
+    window.customElements.define(ShPanel.is, ShPanel);
+  </script>
+</dom-module>

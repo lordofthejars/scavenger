@@ -1,0 +1,24 @@
+{
+  "shell": "src/sh-app/sh-app.html",
+  "sources": [
+    "images/**/*",
+    "src/**/*"
+  ],
+  "extraDependencies": [
+    "manifest.json",
+    "node_modules/**/*.js",
+    "bower_components/webcomponentsjs/*.js",
+    "bower_components/webcomponentsjs/*.js.map",
+    "!bower_components/webcomponentsjs/gulpfile.js",
+    "sh-admin.html",
+    "src/sh-admin.js"
+  ],
+  "builds": [
+    { "preset": "es5-bundled" }
+  ],
+  "lint": {
+    "rules": [
+      "polymer-2"
+    ]
+  }
+}

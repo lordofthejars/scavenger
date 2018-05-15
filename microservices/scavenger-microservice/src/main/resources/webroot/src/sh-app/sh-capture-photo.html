@@ -1,0 +1,461 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="./sh-loadimage.html">
+
+<dom-module id="sh-capture-photo">
+  <template>
+    <style>
+      :host {
+        display: block;
+        box-sizing: border-box;
+        text-align: center;
+      }
+
+      #imageInput {
+        display: none;
+      }
+
+      .header {
+        text-align: center;
+        background-image: linear-gradient(to bottom, #93eaf9, #53eaf9);
+        background-color: #53eaf9;
+        margin: -2rem -2rem 0 -2rem;
+        padding: 1.5rem 2rem 3rem 2rem;
+        box-sizing: border-box;
+        position: relative;
+      }
+
+      .header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: -1px;
+        width: 100%;
+        background-image: url(/images/clouds-top.svg);
+        background-position: bottom center;
+        background-repeat: no-repeat;
+        background-size: 110% auto;
+      }
+
+      .header img {
+        display: inline-block;
+        width: 118px;
+      }
+
+      h1 {
+        margin: 1rem 0 .5rem 0;
+        color: #3bcbf8;
+        text-shadow: 2px 2px 0 #027f7f;
+        font-family: 'bangers', sans-serif;
+        letter-spacing: 2px;
+        text-align: center;
+        position: relative;
+      }
+
+      p {
+        font-size: 1.3rem;
+        margin: 1.5rem 0rem;
+        font-family: 'Overpass', sans-serif;
+        color: #444;
+      }
+
+      p strong {
+        font-weight: 700;
+        color: #444;
+      }
+      .challange {
+        line-height: 1.5;
+      }
+
+      .challange__button {
+        color: white;
+        display: block;
+        width: 100%;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 400px;
+        text-transform: uppercase;
+        font-size: 1.2rem;
+        border: 0;
+        background-color: #20a300;
+        text-shadow: 2px 2px 0 #027f7f;
+        font-family: 'Overpass', sans-serif;
+        letter-spacing: 2px;
+      }
+
+      .challange__button--secondary {
+        background-color: #666;
+        text-shadow: 2px 2px 0 #333;
+      }
+
+      .error {
+        /* color: #af3510; */
+      }
+
+      .xray {
+        position: relative;
+      }
+
+      .xray img,
+      .xray canvas {
+        display: block;
+        position: relative;
+        animation: color 2.9s infinite alternate;
+      }
+
+      .scan {
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 30px;
+        position: absolute;
+        z-index: 1;
+        mix-blend-mode: multiply;
+        animation: xray 1.6s infinite alternate;
+        background-color: lightblue;
+        backdrop-filter: invert(1);
+        --webkit-backdrop-filter: invert(1);
+      }
+
+      @keyframes color {
+        0% {
+          filter: grayscale(1) saturate(1) brightness(1) sepia(0) hue-rotate(0deg);
+        }
+        100% {
+          filter: grayscale(0) saturate(2) brightness(2) sepia(1) hue-rotate(20deg);
+        }
+      }
+
+      @keyframes xray {
+        to {
+          transform: translateX(calc(300px - (30px + 0px)));
+        }
+      }
+      .center {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      }
+      template,
+      canvas {
+        margin-bottom: 1rem;
+      }
+    </style>
+
+    <div class="header">
+      <img src="/images/ico-camera.png" alt="Challange icon: Icon of a camera">
+    </div>
+    <h1>[[_computeLevelHeading(task)]]</h1>
+    <div class="challange">
+      <template is="dom-if" if="[[_computeShowTaskDescription(uploading, success, failure, scoreNotImproved)]]" restamp="true">
+        <p>With your camera <strong>find [[task.description]]</strong> and take a picture</p>
+      </template>
+      <template is="dom-if" if="[[!hasImage]]" restamp="true">
+        <button on-click="takePhoto" class="challange__button">ok let's go!</button>
+      </template>
+      <input type="file" id="imageInput" name="image" accept="image/*" capture />
+      <div class="center">
+        <div hidden$="[[_computeShowCanvas(failure, scoreNotImproved, success)]]" class="xray">
+          <template is="dom-if" if="[[hasImage]]" restamp="true">
+            <div class="scan"></div>
+          </template>
+          <canvas id="canvas"></canvas>
+        </div>
+      </div>
+      <template is="dom-if" if="[[uploading]]" restamp="true">
+        <p>Uploading...</p>
+      </template>
+      <template is="dom-if" if="[[_computeShowUploadPhotoButton(canUpload, uploading)]]" restamp="true">
+        <button on-click="reset">Cancel</button>
+      </template>
+      <template is="dom-if" if="[[failure]]" restamp="true">
+        <p class="error">Oops! I didn't <strong>[[task.description]]</strong> in that picture.
+        </p>
+        <button on-click="reset" class="challange__button challange__button--secondary">Try again</button>
+      </template>
+      <template is="dom-if" if="[[scoreNotImproved]]" restamp="true">
+        <p class="error">Your score was better the last time!</p>
+        <p>Pro tip: <strong>Zoom in!</strong></p>
+        <button on-click="reset" class="challange__button challange__button--secondary">Try again</button>
+      </template>
+      <template is="dom-if" if="[[success]]" restamp="true">
+        <p>Nice work! We have a match!</p>
+        <p>You scored
+          <strong>[[lastScore.score]] points</strong>!</p>
+        <button on-click="_continueAdventure" class="challange__button">Continue Adventure</button>
+      </template>
+      <template is="dom-if" if="[[error]]" restamp="true">
+        <p>There was an error :(</p>
+      </template>
+    </div>
+
+  </template>
+
+  <script>
+    class ShCapturePhoto extends Polymer.Element {
+      static get is() { return 'sh-capture-photo'; }
+      static get properties() {
+        return {
+          hasImage: {
+            type: Boolean,
+            value: false
+          },
+          uploading: {
+            type: Boolean,
+            value: false
+          },
+          photos: {
+            type: Array,
+            value: [],
+            notify: true
+          },
+          canUpload: {
+            type: Boolean,
+            value: false
+          },
+          success: {
+            type: Boolean,
+            value: false
+          },
+          failure: {
+            type: Boolean,
+            value: false
+          },
+          scoreNotImproved: {
+            type: Boolean,
+            value: false
+          },
+          error: {
+            type: Boolean,
+            value: false
+          },
+          tasksArray: {
+            type: String,
+            value: ''
+          },
+          taskIndex: {
+            type: Number
+          },
+          task: {
+            type: Object,
+            notify: true
+          },
+          exifData: {
+            type: Object
+          },
+          user: {
+            type: Object,
+            value: {}
+          },
+          currentPhoto: {
+            type: Object,
+            value: null
+          },
+          lastScore: {
+            type: Object,
+            observer: 'lastScoreChanged'
+          }
+        };
+      }
+
+      constructor() {
+        super();
+        this.imageInputOnChangeHandler = this.imageInputOnChangeHandler.bind(this);
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        this.imageInput = this.shadowRoot.querySelector('#imageInput');
+        this.imageInput.addEventListener('change', this.imageInputOnChangeHandler);
+      }
+
+      disconnectedCallback() {
+        super.disconnectedCallback();
+        this.imageInput.removeEventListener('change', this.imageInputOnChangeHandler);
+      }
+
+      takePhoto() {
+        this.imageInput.click();
+      }
+
+      imageInputOnChangeHandler(event) {
+        const self = this;
+
+        if (event.target.files.length === 1 && event.target.files[0].type.indexOf('image/') === 0) {
+          let file = event.target.files[0];
+          let options = {
+            maxWidth: 300,
+            maxHeight: 600,
+            canvas: true,
+            downsamplingRatio: 0.05
+          };
+
+          loadImage.parseMetaData(file, data => {
+            if (data.exif) {
+              self.exifData = data.exif.getAll();
+              options['orientation'] = data.exif.get('Orientation');
+            }
+
+            loadImage(file, data => {
+              self.canvas = self.shadowRoot.querySelector('canvas');
+              self.canvas.parentNode.replaceChild(data, this.canvas);
+              self.canvas = data;
+
+              this.canUpload = true;
+              this.hasImage = true;
+
+              this.upload();
+            }, options);
+          });
+        }
+      }
+
+      upload() {
+        let image = this.canvas.toDataURL('image/jpeg').replace(/^data:image\/(png|jpg|jpeg);base64,/, ''); // the backend should not receive the data:image part
+        let originalImage = this.canvas.toDataURL('image/jpeg'); // need to store the original so we can use it again in the UI
+        let created = new Date();
+        let dateFormatOptions = { day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' };
+        let data = {
+          type: 'picture',
+          taskId: this.task.id,
+          picture: image,
+          playerId: this.user.playerId,
+          transactionId: `${this.user.dataCenter}_${this.hyphenate(this.user.username)}_${this.task.id}_${created.getTime()}`,
+          metadata: {
+            userAgent: navigator.userAgent,
+            created: created
+          }
+        };
+
+        this.uploading = true;
+
+        const customEvent = new CustomEvent('send-socket-message', {
+          detail: {
+            data: data
+          },
+          bubbles: true,
+          composed: true
+        });
+
+        // need to create a copy of the data so it isn't manipulated before the
+        // socket message is sent
+        let dataCopy = Object.assign({}, data);
+        dataCopy.picture = originalImage;
+        dataCopy.task = this.task;
+        dataCopy.dateFormatted = Intl.DateTimeFormat('en-US', dateFormatOptions).format(created);
+        dataCopy.score = 0;
+
+        this.currentPhoto = dataCopy;
+        this.push('photos', this.currentPhoto);
+        this.dispatchEvent(customEvent);
+      }
+
+      reset() {
+        this.loading = false;
+        this.success = false;
+        this.failure = false;
+        this.scoreNotImproved = false;
+        this.uploading = false;
+        this.canUpload = false;
+        this.error = false;
+        this.exifData = null;
+        this.hasImage = false;
+        this.imageInput.value = '';
+
+        const canvas = this.shadowRoot.querySelector('canvas');
+        const canvasContext = canvas.getContext('2d');
+        canvasContext.clearRect(0, 0, 300, 600);
+      }
+
+      fireTaskCompleted() {
+        const customEvent = new CustomEvent('task-completed', {
+          detail: {
+            taskId: this.task.id,
+            taskIndex: this.taskIndex,
+            tasksArray: this.tasksArray
+          },
+          bubbles: true,
+          composed: true
+        });
+
+        this.dispatchEvent(customEvent);
+      }
+
+      lastScoreChanged(data) {
+        this.uploading = false;
+        this.canUpload = false;
+
+        if (!data.matched) {
+          this.failure = true;
+          return;
+        }
+
+        if (!data.scored) {
+          this.scoreNotImproved = true;
+          return;
+        }
+
+        if (data.score === 0) {
+          this.failure = true;
+          return;
+        }
+
+        if (data.transactionId === this.currentPhoto.transactionId) {
+          let index;
+
+          this.photos.forEach((photo, index) => {
+            if (photo.transactionId === data.transactionId) {
+              this.set(`photos.${index}.score`, data.score);
+            }
+          });
+
+          this.success = true;
+          this.currentPhoto = null;
+          this.fireTaskCompleted()
+        }
+      }
+
+      hyphenate(string) {
+        return string.replace(/ /g, '-').toLowerCase();
+      }
+
+      _computeShowUploadPhotoButton(canUpload, uploading) {
+        return canUpload && !uploading;
+      }
+
+      _computeShowCanvas(failure, scoreNotImproved, success) {
+        return failure || scoreNotImproved || success;
+      }
+
+      _computeShowTaskDescription(uploading, success, failure, scoreNotImproved) {
+        return !uploading && !success && !failure && !scoreNotImproved;
+      }
+
+      _continueAdventure() {
+        const customEvent = new CustomEvent('nav-item-close', {
+          bubbles: true,
+          composed: true,
+          detail: {
+            panel: 'capture-photo'
+          }
+        });
+
+        this.dispatchEvent(customEvent);
+      }
+
+      _computeLevelHeading(task) {
+        if (task.type === 'map') {
+          return `Level ${task.stage}`;
+        }
+
+        if (task.type === 'partyisland') {
+          return 'Party Island';
+        }
+      }
+    }
+
+    window.customElements.define(ShCapturePhoto.is, ShCapturePhoto);
+  </script>
+</dom-module>

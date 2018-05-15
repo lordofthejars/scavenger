@@ -1,0 +1,176 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+
+<link rel="import" href="./sh-service.html">
+<link rel="import" href="./sh-splash.html">
+<link rel="import" href="./sh-main.html">
+<link rel="import" href="./sh-auth.html">
+
+<dom-module id="sh-app">
+  <template>
+    <style>
+      :host {
+        display: block;
+        height: 100%;
+      }
+
+      :host(.prevent-scroll) {
+        overflow: hidden;
+      }
+
+      iron-pages {
+        height: 100%;
+      }
+    </style>
+
+    <sh-service
+      id="service"
+      user="{{user}}"
+      map-tasks="{{mapTasks}}"
+      party-island-tasks="{{partyIslandTasks}}"
+      last-score="{{lastScore}}"
+      game-state="{{gameState}}">
+    </sh-service>
+
+    <iron-pages
+      selected="[[page]]"
+      attr-for-selected="name"
+      role="main">
+      <sh-splash
+        name="splash"
+        user="{{user}}"
+        game-state="{{gameState}}">
+      </sh-splash>
+      <sh-main
+        name="main"
+        user="{{user}}"
+        map-tasks="{{mapTasks}}"
+        party-island-tasks="{{partyIslandTasks}}"
+        last-score="{{lastScore}}"
+        game-state="{{gameState}}"
+        panel-open="{{panelOpen}}"
+        party-island-open="{{partyIslandOpen}}">
+      </sh-main>
+    </iron-pages>
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class ShApp extends Polymer.Element {
+      static get is() { return 'sh-app'; }
+      static get properties() {
+        return {
+          page: {
+            type: String,
+            value: 'splash'
+          },
+          user: {
+            type: Object,
+            value: {}
+          },
+          mapTasks: {
+            type: Array,
+            value: []
+          },
+          partyIslandTasks: {
+            type: Array,
+            value: []
+          },
+          lastScore: {
+            type: Object
+          },
+          gameState: {
+            type: String,
+            observer: '_gameStateChanged'
+          },
+          panelOpen: {
+            type: String,
+            observer: '_panelOpenChanged'
+          },
+          partyIslandOpen: {
+            type: String,
+            observer: '_panelOpenChanged'
+          }
+        };
+      }
+
+      constructor() {
+        super();
+
+        this.userConfiguredHandler = this.userConfiguredHandler.bind(this);
+        this.onAuthInit = this.onAuthInit.bind(this);
+        this.addEventListener('user-configured', this.userConfiguredHandler);
+        this.addEventListener('send-socket-message', this.sendSocketMessage);
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        ShAuth.initSSO().then(initResult => {
+          initResult
+          .success(this.onAuthInit)
+          .error(err => console.error('initError', err));
+        });
+
+      }
+
+      onAuthInit(authed) {
+        console.log(`initSuccess; authenticated: ${authed}`);
+        if (authed) {
+          this.set('user.email', ShAuth.keycloak.tokenParsed.email);
+          this.set('user.name', ShAuth.keycloak.tokenParsed.name);
+
+          this.$.service.connectToSocket();
+        }
+      }
+
+      userConfiguredHandler(event) {
+        // this.page = 'main';
+      }
+
+      sendSocketMessage(event) {
+        this.$.service.sendMessage(event.detail.data);
+      }
+
+      _gameStateChanged(gameState) {
+        switch (gameState) {
+          case 'lobby':
+            this.page = 'splash';
+            break;
+
+          case 'play':
+            this.page = 'main';
+            break;
+
+          case 'pause':
+            this.page = 'splash';
+            break;
+
+          case 'storm':
+            this.page = 'splash';
+            break;
+
+          case 'game-over':
+            this.page = 'main';
+            break;
+
+          default:
+            this.page = 'splash';
+        }
+      }
+
+      _panelOpenChanged(panelOpen) {
+        // if (panelOpen === 'open') {
+        //   this.classList.add('prevent-scroll');
+        // } else {
+        //   this.classList.remove('prevent-scroll');
+        // }
+      }
+    }
+
+    window.customElements.define(ShApp.is, ShApp);
+  </script>
+</dom-module>

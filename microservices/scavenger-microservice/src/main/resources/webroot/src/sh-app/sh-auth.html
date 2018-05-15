@@ -1,0 +1,97 @@
+<script src="../../node_modules/keycloak-js/dist/keycloak.js"></script>
+<script src="../../node_modules/localforage/dist/localforage.min.js"></script>
+
+<script>
+  class ShAuth {
+
+    static initSSO(required = true) {
+      return ShAuth.read().then(user => {
+        ShAuth.keycloak = Keycloak({
+          realm: "summit",
+          url: "https://sso.redhatkeynote.com/auth",
+          sslRequired: "external",
+          resource: "game",
+          clientId: "game",
+          publicClient: true,
+          confidentialPort: 0,
+        });
+
+        ShAuth.keycloak.onAuthSuccess        = ShAuth.onAuthSuccess;
+        ShAuth.keycloak.onAuthError          = ShAuth.onAuthError;
+        ShAuth.keycloak.onAuthRefreshSuccess = ShAuth.onAuthRefreshSuccess;
+        ShAuth.keycloak.onAuthRefreshError   = ShAuth.onAuthRefreshError;
+        ShAuth.keycloak.onAuthLogout         = ShAuth.onAuthLogout;
+        ShAuth.keycloak.onTokenExpired       = ShAuth.onTokenExpired;
+
+        var options = {
+          flow: 'standard',
+        };
+
+        if (required) {
+          options.onLoad = 'login-required';
+        }
+
+        if (user) {
+          options.token = user.token;
+          options.refreshToken = user.refreshToken;
+          options.timeSkew = user.timeSkew;
+        }
+
+        ShAuth.intervalId = setInterval(() => {
+          ShAuth.keycloak.updateToken(60);
+        }, 30 * 1000);
+
+        return ShAuth.keycloak.init(options);
+      });
+    }
+
+    static save() {
+      return localforage.setItem('rh_sso_user', {
+        timeSkew: ShAuth.keycloak.timeSkew,
+        refreshToken: ShAuth.keycloak.refreshToken,
+        token: ShAuth.keycloak.token,
+      });
+    }
+
+    static read() {
+      return localforage.getItem('rh_sso_user');
+    }
+    static clear() {
+      return localforage.removeItem('rh_sso_user');
+    }
+
+    static getUser() {
+      return ShAuth.keycloak.tokenParsed;
+    }
+
+    static onAuthSuccess() {
+      console.log('onAuthSuccess');
+      ShAuth.save();
+    }
+
+    static onAuthError() {
+      console.log("onAuthError");
+    }
+
+    static onAuthRefreshSuccess() {
+      console.log("onAuthRefreshSuccess");
+      ShAuth.save();
+    }
+
+    static onAuthRefreshError() {
+      console.log("onAuthRefreshError");
+      ShAuth.clear();
+      ShAuth.keycloak.login();
+    }
+    static onAuthLogout() {
+      ShAuth.clear();
+      console.log("onAuthLogout");
+    }
+
+    static onTokenExpired() {
+      ShAuth.clear();
+      console.log("onTokenExpired");
+    }
+
+  }
+</script>

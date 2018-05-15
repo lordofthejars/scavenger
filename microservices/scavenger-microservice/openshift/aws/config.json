@@ -1,0 +1,86 @@
+{
+  "data-center": "Amazon",
+  "clouds": {
+    "google": "scavenger-hunt-microservice-scavenger-hunt-microservice.apps.summit-gce.sysdeseng.com",
+    "azure": "scavenger-hunt-microservice-scavenger-hunt-microservice.apps.summit-azr.sysdeseng.com",
+    "amazon": "scavenger-hunt-microservice-scavenger-hunt-microservice.apps.summit-aws.sysdeseng.com"
+  },
+  "locations": {
+    "localhost": {
+      "s3-enable": false,
+      "jdg-enable": false,
+      "fake-score": true,
+      "sso-auth-enable": false
+    },
+    "Amazon": {
+      "s3-enable": true,
+      "s3-urls": [
+        "http://storage-aws1.sysdeseng.com:8080/v1/AUTH_gv0/bucket1",
+        "http://storage-aws2.sysdeseng.com:8080/v1/AUTH_gv0/bucket2",
+        "http://storage-aws3.sysdeseng.com:8080/v1/AUTH_gv0/bucket3"
+      ],
+      "s3-auth-token": "BOGUS",
+      "jdg-enable": true,
+      "jdg-url": "jdg-app-hotrod.datagrid.svc",
+      "fake-score": false,
+      "sso-enable": true,
+      "sso-cert-url": "https://secure-sso-sso.apps.summit-aws.sysdeseng.com/auth/realms/summit/protocol/openid-connect/certs",
+      "leader-board-url": "http://score-gateway.scavenger-hunt-microservice.svc:8080/rank"
+    }
+  },
+  "admin-socket-token": "dGhpc19pc19hX3NlY3JldF9zdW1taXRfMTg=",
+  "tasks": {
+    "d6c33a1a-fde7-4134-b058-027395353aac": {
+      "description": "a person",
+      "type": "map",
+      "stage": 1,
+      "object": "person",
+      "point": 50
+    },
+    "ee95d096-5e9a-4d4a-bcac-488d6436e47f": {
+      "description": "a teddy bear",
+      "type": "map",
+      "stage": 2,
+      "object": "teddy bear",
+      "point": 100
+    },
+    "6c570fd2-76b9-438c-89fa-39730ad7e3c7": {
+      "description": "a horse",
+      "type": "map",
+      "stage": 3,
+      "object": "horse",
+      "point": 150
+    },
+    "0117da38-116d-4ad1-a6c5-e7c834d01b19": {
+      "description": "an apple",
+      "type": "map",
+      "stage": 4,
+      "object": "apple",
+      "point": 200
+    },
+    "d056e95e-fada-e7c8-ecfd-96464068ac53": {
+      "description": "a cell phone",
+      "type": "partyisland",
+      "object": "cell phone",
+      "point": 50
+    },
+    "1aea97d6-0661-ee35-507b-29ce3c1ec060": {
+      "description": "a laptop",
+      "type": "partyisland",
+      "object": "laptop",
+      "point": 50
+    },
+    "1c94dadc-6d3e-5a22-597c-980d1c970433": {
+      "description": "a clock",
+      "type": "partyisland",
+      "object": "clock",
+      "point": 50
+    },
+    "999254aa-9021-0eb0-6b58-2107f91ded2b": {
+      "description": "a book",
+      "type": "partyisland",
+      "object": "book",
+      "point": 50
+    }
+  }
+}

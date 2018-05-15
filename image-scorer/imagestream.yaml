@@ -1,0 +1,15 @@
+apiVersion: "v1"
+kind: "ImageStream"
+metadata:
+  name: "imagescorer"
+spec:
+  dockerImageRepository: "docker.io/bbrowning/imagescorer"
+  lookupPolicy:
+    local: true
+  tags:
+  - name: rhdemo
+    from:
+      kind: DockerImage
+      name: docker.io/bbrowning/imagescorer:latest
+    referencePolicy:
+      type: Local

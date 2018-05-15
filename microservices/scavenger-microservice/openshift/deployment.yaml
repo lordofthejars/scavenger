@@ -1,0 +1,82 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    app: scavenger-hunt-microservice
+    group: escoffier.me.demo
+  name: scavenger-hunt-microservice
+spec:
+  replicas: 1
+  selector:
+    app: scavenger-hunt-microservice
+    group: escoffier.me.demo
+  template:
+    metadata:
+      labels:
+        app: scavenger-hunt-microservice
+        group: escoffier.me.demo
+    spec:
+      containers:
+        - env:
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+
+          image: scavenger-hunt-microservice/vertx-greeting-application
+          imagePullPolicy: IfNotPresent
+          name: vertx
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+            - containerPort: 8778
+              name: jolokia
+              protocol: TCP
+          readinessProbe:
+              failureThreshold: 3
+              httpGet:
+                path: /health
+                port: 8080
+                scheme: HTTP
+              initialDelaySeconds: 5
+              periodSeconds: 10
+              successThreshold: 1
+              timeoutSeconds: 1
+          livenessProbe:
+              failureThreshold: 3
+              httpGet:
+                path: /health
+                port: 8080
+                scheme: HTTP
+              initialDelaySeconds: 10
+              periodSeconds: 10
+              successThreshold: 1
+              timeoutSeconds: 1
+          securityContext:
+            privileged: false
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /deployments/conf
+              name: config
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - configMap:
+            defaultMode: 420
+            items:
+              - key: config.json
+                path: config.json
+            name: scavenger-config
+          name: config
+  triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - vertx
+        from:
+          kind: ImageStreamTag
+          name: 'scavenger-hunt-microservice:latest'
+      type: ImageChange

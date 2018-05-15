@@ -1,0 +1,165 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="sh-navigation">
+  <template>
+    <style>
+      :host {
+        display: block;
+        position: fixed;
+        top: 0;
+        width: 100vw;
+        z-index: 400;
+        font-family: 'bangers', sans-serif;
+      }
+      :host::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -1px;
+        bottom: 0;
+        width: 102%;
+        z-index: -1;
+        background-image: url(/images/game-dashboard-clouds.svg);
+        background-position: 0 0;
+        background-size: 100% auto;
+      }
+
+      ul {
+        display: flex;
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        align-items: center;
+        padding: 0 1rem 13vw 1rem;
+        height: 17vw;
+        color: #444;
+      }
+
+      li {
+        display: flex;
+        margin-right: 1rem;
+      }
+
+      a {
+        display: flex;
+        text-decoration: none;
+        align-items: center;
+        justify-content: center;
+        color: #444;
+        padding: .3rem;
+        background: white;
+        border-radius: 40rem;
+        border: 1px solid Rgba(0, 0, 0, .2);
+        min-height: 25px;
+        min-width: 25px;
+      }
+
+      a span {
+        display: none;
+      }
+
+      @media (min-width: 355px) {
+        a {
+          padding: .3rem 1rem;
+        }
+        a span {
+          display: block;
+        }
+        img[src*="/trophy.svg"] {
+          margin-right: .3rem;
+        }
+
+      }
+
+      li:nth-child(2) {
+        margin-right: auto;
+      }
+
+      li:nth-child(3),
+      li:nth-child(4) {
+        /* justify-self: flex-end; */
+        margin-right: 0;
+        margin-left: 1rem;
+      }
+
+
+      li:last-of-type a {
+        padding-left: .8rem;
+        padding-right: .3rem;
+      }
+
+      .user__picture {
+        border-radius: 50%;
+        display: block;
+        width: 25px;
+        height: 25px;
+        margin-left: 8px;
+      }
+
+      .user__picture[src*="svg"] {
+        margin-right: .3rem;
+        display: block;
+        width: auto;
+        height: auto;
+      }
+
+      img[src*="/coin.svg"],
+      img[src*="/cloud.svg"] {
+        margin-right: .3rem;
+      }
+
+      @media (max-width: 320px) {
+        :host {
+          font-size: 14px;
+        }
+
+        ul {
+          padding-left: 0.5rem;
+          padding-right: 0.5rem;
+        }
+      }
+    </style>
+
+    <ul>
+      <li><img src="/images/coin.svg" alt="Point: Icon of a coin"> x [[user.score]]</li>
+      <li><img src="/images/cloud.svg" alt="Cloud"> [[user.dataCenter]]</li>
+      <li>
+        <a href="#" on-click="fireNavigationEvent" data-nav-item="profile">
+          [[user.username]]
+          <sh-avatar class="user__picture" email="{{ user.email }}"></sh-avatar>
+        </a>
+      </li>
+    </ul>
+  </template>
+
+  <script>
+    class ShNavigation extends Polymer.Element {
+      static get is() { return 'sh-navigation'; }
+      static get properties() {
+        return {
+          user: {
+            type: Object
+          }
+        };
+      }
+
+      fireNavigationEvent(event) {
+        event.preventDefault();
+
+        const target = event.currentTarget;
+        const navigationItem = target.getAttribute('data-nav-item');
+        const customEvent = new CustomEvent('nav-item-selected', {
+          detail: {
+            navItem: navigationItem
+          },
+          bubbles: true,
+          composed: true
+        });
+
+        this.dispatchEvent(customEvent);
+      }
+    }
+
+    window.customElements.define(ShNavigation.is, ShNavigation);
+  </script>
+</dom-module>

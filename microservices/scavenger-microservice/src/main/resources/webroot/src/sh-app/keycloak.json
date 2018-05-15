@@ -1,0 +1,9 @@
+{
+  "realm": "summit",
+  "auth-server-url": "https://secure-sso-sso.apps.summit-aws.sysdeseng.com/auth",
+  "ssl-required": "external",
+  "resource": "game",
+  "clientId": "game",
+  "public-client": true,
+  "confidential-port": 0
+}

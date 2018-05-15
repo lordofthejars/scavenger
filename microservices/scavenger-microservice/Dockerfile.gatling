@@ -1,0 +1,15 @@
+FROM denvazh/gatling:2.3.1
+
+COPY . /scavenger-hunt-microservice
+
+WORKDIR /scavenger-hunt-microservice
+
+RUN mkdir -p /results \
+  && chgrp -R 0 /results \
+  && chmod -R g+rwX /results \
+  && chgrp -R 0 /scavenger-hunt-microservice \
+  && chmod -R g+rwX /scavenger-hunt-microservice \
+  && chgrp -R 0 /opt/gatling \
+  && chmod -R g+rwX /opt/gatling
+
+CMD ["-sf", "src/test/gatling", "-s", "ConnectionSimulation", "-rf", "/results"]

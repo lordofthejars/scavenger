@@ -1,0 +1,643 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+
+<link rel="import" href="./sh-navigation.html">
+<link rel="import" href="./sh-panel.html">
+<link rel="import" href="./sh-profile.html">
+<link rel="import" href="./sh-capture-photo.html">
+<link rel="import" href="./sh-party-island.html">
+<link rel="import" href="./sh-congrats.html">
+<link rel="import" href="./sh-avatar.html">
+<link rel="import" href="./sh-gameover.html">
+
+<dom-module id="sh-main">
+  <template>
+    <style>
+      /*
+        Loader indicator
+      */
+
+      :host {
+        box-sizing: border-box;
+        display: block;
+        font-family: 'Overpass', sans-serif;
+        font-weight: 400;
+      }
+
+      .panel {
+        display: block;
+        visibility: hidden;
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 800;
+        transition: visibility 0.5s linear,
+        transform 0.5s ease-in-out;
+        transform: translate3d(0, 100vh, 0);
+        will-change: transform, visibility;
+        overflow-x: hidden;
+        overflow-y: auto;
+        pointer-events: auto;
+        scroll-behavior: smooth;
+        overscroll-behavior: contain;
+        -webkit-overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .panel.open {
+        visibility: visible;
+        transition: visibility 0s linear,
+        transform 0.5s ease-in-out;
+        transform: translate3d(0, 0, 0);
+      }
+
+      .map {
+        background-image: url(/images/game-map.svg);
+        background-repeat: no-repeat;
+        background-position: 0 0;
+        background-size: auto 100%;
+        display: grid;
+        grid-template-columns: repeat(10, 10vw);
+        grid-template-rows: repeat(31, 10vw);
+      }
+
+      .party-island {
+        grid-column: 8/11;
+        grid-row: 8 / 10;
+        border: none;
+        background-color: transparent;
+      }
+
+      .stage {
+        background-color: #d54917;
+        border: 3px solid #af3510;
+        background-image: url(/images/lock.svg),
+        radial-gradient(circle at top, rgba(255, 255, 255, .1), rgba(255, 255, 255, .2) 55%, transparent 55%);
+        background-position: center center;
+        background-repeat: no-repeat;
+        box-shadow: 0px 0px 0px 4px rgba(255, 255, 255, .5);
+        border-radius: 50%;
+        position: relative;
+        pointer-events: none;
+        transition: all .7s ease;
+      }
+
+
+      .stage--done {
+        background-color: #24ce00;
+        border-color: #20a300;
+        background-image: url(/images/checkmark.svg),
+        radial-gradient(circle at top, rgba(255, 255, 255, .1), rgba(255, 255, 255, .2) 55%, transparent 55%);
+      }
+
+      .stage--current {
+        background-color: #ffbf00;
+        border-color: #dd9e00;
+        background-image: radial-gradient(circle at top, rgba(255, 255, 255, .1), rgba(255, 255, 255, .2) 55%, transparent 55%);
+      }
+
+      .stage--current,
+      .stage--done {
+        pointer-events: auto;
+      }
+
+      .stage--1 {
+        grid-column: 4;
+        grid-row: 9;
+      }
+
+      .stage--2 {
+        grid-column: 2;
+        grid-row: 14;
+      }
+
+      .stage--3 {
+        grid-column: 8;
+        grid-row: 22;
+      }
+
+      .stage--4 {
+        grid-column: 4 / 7;
+        grid-row: 29 / 31;
+        background: none;
+        border: none;
+        box-shadow: none;
+        z-index: 500;
+      }
+
+      .stage--4 span {
+        display: none;
+      }
+
+      .stage__action {
+        border: 0;
+        background-color: transparent;
+        position: absolute;
+        width: calc(100% + 20px);
+        top: -10px;
+        left: -10px;
+        bottom: -10px;
+        z-index: 10;
+        display: block;
+      }
+
+      .stage__action span {
+        color: white;
+        position: absolute;
+        bottom: -8px;
+        left: -10px;
+        right: -10px;
+        text-transform: uppercase;
+        font-family: 'bangers', sans-serif;
+        font-size: 1.3rem;
+        letter-spacing: .1rem;
+        text-shadow: 2px 2px 0 rgba(0, 0, 0, .7);
+      }
+
+      .user {
+        position: relative;
+        z-index: 200;
+        height: 10vw;
+        width: 10vw;
+        top: -16px;
+        grid-column: 4;
+        grid-row: 4;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-direction: column;
+        pointer-events: none;
+        animation-timing-function: linear;
+        animation-fill-mode: forwards;
+      }
+
+      /* Movements */
+
+      .move-to-1 {
+        animation-name: path-to-one;
+        animation-duration: 2.2s;
+      }
+
+      .move-to-2 {
+        transform: translate3d(0%, 500%, 0);
+        animation-name: path-to-two;
+        animation-duration: 1.8s;
+      }
+
+      .move-to-3 {
+        transform: translate3d(-200%, 1000%, 0);
+        animation-name: path-to-three;
+        animation-duration: 2.8s;
+      }
+
+      .move-to-4 {
+        transform: translate3d(400%, 1800%, 0);
+        animation-name: path-to-four;
+        animation-duration: 3.2s;
+      }
+
+      .move-to-party {
+        transform: translate3d(500%, 200%, 0);
+        animation-name: path-to-paty;
+        animation-duration: 1s;
+      }
+
+      @keyframes path-to-paty {
+        0 {
+          transform: translate3d(500%, 200%, 0);
+        }
+        100% {
+          transform: translate3d(500%, 500%, 0);
+        }
+      }
+
+      @keyframes path-to-one {
+        30% {
+          transform: translate3d(0, 300%, 0);
+        }
+        50% {
+          transform: translate3d(-300%, 300%, 0);
+        }
+        70% {
+          transform: translate3d(-300%, 500%, 0);
+        }
+        100% {
+          transform: translate3d(0%, 500%, 0);
+        }
+      }
+
+      @keyframes path-to-two {
+        0 {
+          transform: translate3d(0%, 500%, 0);
+        }
+        11% {
+          transform: translate3d(100%, 500%, 0);
+        }
+        44% {
+          transform: translate3d(100%, 800%, 0);
+        }
+        77% {
+          transform: translate3d(-200%, 800%, 0);
+        }
+        100% {
+          transform: translate3d(-200%, 1000%, 0);
+        }
+      }
+
+      @keyframes path-to-three {
+        0 {
+          transform: translate3d(-200%, 1000%, 0);
+        }
+        21% {
+          transform: translate3d(-200%, 1300%, 0);
+        }
+        63% {
+          transform: translate3d(400%, 1300%, 0);
+        }
+        100% {
+          transform: translate3d(400%, 1800%, 0);
+        }
+      }
+
+      @keyframes path-to-four {
+        0 {
+          transform: translate3d(400%, 1800%, 0);
+        }
+        12% {
+          transform: translate3d(200%, 1800%, 0);
+        }
+        61% {
+          transform: translate3d(200%, 2600%, 0);
+        }
+        72% {
+          transform: translate3d(400%, 2600%, 0);
+          z-index: 0;
+        }
+        78% {
+          transform: translate3d(400%, 2700%, 0);
+          z-index: 700;
+        }
+        100% {
+          transform: translate3d(100%, 2700%, 0);
+          z-index: 700;
+        }
+      }
+
+      .panel-info {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        z-index: 9999;
+        justify-content: space-between;
+        padding: 4.5rem 1rem 1rem 1rem;
+        list-style-type: none;
+        margin: 0;
+        color: #444;
+        font-family: 'bangers', sans-serif;
+        transform: translate3d(0, 0, 0);
+        transition: transform 0.5s ease-in-out;
+        transition-delay: 0.25s;
+      }
+
+      .panel-info img[src*="/coin.svg"] {
+        margin-right: .3rem;
+      }
+      .panel-info img[src*="/cloud.svg"] {
+        margin-left: .3rem;
+      }
+
+      .panel-info::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background-image: url(/images/bottom-clouds.svg);
+        background-position: top center;
+        background-repeat: no-repeat;
+        background-size: 110% auto;
+        z-index: -1;
+      }
+
+      .panel-info.closed {
+        transform: translate3d(0, 100vh, 0);
+      }
+    </style>
+
+    <app-localstorage-document key="sh-photos" data="{{photos}}"></app-localstorage-document>
+    <app-localstorage-document key="sh-user" data="{{user}}"></app-localstorage-document>
+
+    <sh-navigation user="[[user]]"></sh-navigation>
+
+    <div class="map">
+      <div class$="user move-to-[[currentTask]]">
+        <sh-avatar gamepiece email="[[user.email]]">{{ user.email }}</sh-avatar>
+      </div>
+      <button class="party-island" on-click="openPartyIsland">
+      </button>
+      <template is="dom-repeat" items="{{mapTasks}}" as="mapTask" index-as="index">
+        <div class$="stage stage--[[mapTask.stage]] [[_computeStageCurrent(mapTask.stage, currentTask)]] [[_computeStageCompleted(mapTask.completed)]]">
+          <button class="stage__action" on-click="openMapTask">
+            <span>Level [[mapTask.stage]]</span>
+          </button>
+        </div>
+      </template>
+    </div>
+
+    <sh-panel class$="panel [[partyIslandOpen]]" name="party-island">
+      <sh-party-island tasks="{{partyIslandTasks}}"></sh-party-island>
+    </sh-panel>
+
+    <iron-pages class$="panel panel-modal [[panelOpen]]" selected="[[navItem]]" attr-for-selected="name">
+      <sh-panel name="profile">
+        <sh-profile photos="{{photos}}" user="{{user}}"></sh-profile>
+      </sh-panel>
+      <sh-panel name="capture-photo">
+        <sh-capture-photo
+          user="[[user]]"
+          photos="{{photos}}"
+          tasks-array="{{tasksArray}}"
+          task="{{selectedTask}}"
+          task-index="{{selectedTaskIndex}}"
+          last-score="{{lastScore}}">
+        </sh-capture-photo>
+      </sh-panel>
+      <sh-panel name="congrats">
+        <sh-congrats id="shCongrats"></sh-congrats>
+      </sh-panel>
+      <sh-panel
+        name="gameover"
+        disable-close="[[_computeDisableGameoverClose(gameState)]]">
+        <sh-gameover user="[[user]]"></sh-gameover>
+      </sh-panel>
+    </iron-pages>
+
+    <ul class$="panel-info [[showFooter]]">
+      <li><img src="/images/coin.svg" alt="Point: Icon of a coin"> x [[user.score]]</li>
+      <li>[[user.dataCenter]] <img src="/images/cloud.svg" alt="Cloud"></li>
+    </ul>
+  </template>
+
+  <script>
+    class ShMain extends Polymer.Element {
+      static get is() { return 'sh-main'; }
+      static get properties() {
+        return {
+          navItem: {
+            type: String
+          },
+          panelOpen: {
+            type: String,
+            value: '',
+            notify: true
+          },
+          tasksArray: {
+            type: String,
+            value: ''
+          },
+          mapTasks: {
+            type: Array,
+            value: [],
+            observer: '_computeUserClass'
+          },
+          partyIslandOpen: {
+            type: String,
+            value: '',
+            notify: true
+          },
+          partyIslandTasks: {
+            type: Array,
+            value: []
+          },
+          selectedTaskIndex: {
+            type: Number,
+          },
+          selectedTask: {
+            type: Object
+          },
+          lastCompletedTask: {
+            type: Number,
+            value: 0
+          },
+          currentTask: {
+            type: Number,
+            value: 1
+          },
+          user: {
+            type: Object,
+            value: {},
+            notify: true,
+          },
+          lastScore: {
+            type: Object
+          },
+          firstLoad: {
+            type: Boolean,
+            value: true
+          },
+          gameState: {
+            type: String,
+            observer: '_gameStateChanged'
+          },
+          showFooter: {
+            type: Boolean,
+            value: false
+          }
+        };
+      }
+
+      static get observers() {
+        return [
+          '_showFooter(panelOpen, partyIslandOpen, gameState)'
+        ]
+      }
+
+      constructor() {
+        super();
+
+        this.panelModalTransitionEndHandler = this.panelModalTransitionEndHandler.bind(this);
+        this.openPartyIsland = this.openPartyIsland.bind(this);
+
+        this.addEventListener('nav-item-selected', this.navItemSelectedHandler);
+        this.addEventListener('nav-item-close', this.closeNav);
+        this.addEventListener('task-completed', this.taskCompleted);
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        this.shadowRoot.querySelector('.panel-modal').addEventListener('transitionend', this.panelModalTransitionEndHandler);
+        this.shadowRoot.querySelector('#shCongrats').addEventListener('open-party-island', this.openPartyIsland);
+        this.shCapturePhotoElement = this.shadowRoot.querySelector('sh-capture-photo');
+      }
+
+      navItemSelectedHandler(event) {
+        this.navItem = event.detail.navItem;
+
+        if (event.detail.tasksArray && event.detail.selectedTaskIndex !== undefined) {
+          this.tasksArray = event.detail.tasksArray;
+          this.selectedTaskIndex = event.detail.selectedTaskIndex;
+          this.selectedTask = this.get([event.detail.tasksArray, event.detail.selectedTaskIndex]);
+        }
+
+        this.panelOpen = 'open';
+      }
+
+      closeNav(event) {
+        if (event.detail.panel === 'party-island') {
+          this.partyIslandOpen = '';
+          return;
+        }
+
+        this.panelOpen = '';
+      }
+
+      taskCompleted(event) {
+        console.log(event);
+        this.set(`${event.detail.tasksArray}.${event.detail.taskIndex}.completed`, true);
+        this._computeUserClass();
+      }
+
+      fireNavItemSelectedEvent(detail) {
+        const customEvent = new CustomEvent('nav-item-selected', {
+          detail: detail
+        });
+
+        this.dispatchEvent(customEvent);
+      }
+
+      capturePhoto() {
+        this.fireNavItemSelectedEvent({
+          navItem: 'capture-photo'
+        });
+      }
+
+      openMapTask(event) {
+        if (event.model.mapTask.stage !== this.lastCompletedTask + 1) {
+          return;
+        }
+
+        if (this.lastCompletedTask === this.mapTasks.length) {
+          return;
+        }
+
+        this.fireNavItemSelectedEvent({
+          navItem: 'capture-photo',
+          tasksArray: 'mapTasks',
+          selectedTaskIndex: event.model.index
+        });
+      }
+
+      openPartyIsland(event) {
+        this.partyIslandOpen = 'open';
+
+        if (event.detail.closePanel) {
+          this.closeNav({
+            detail: {
+              panel: 'congrats'
+            }
+          });
+        }
+      }
+
+      panelModalTransitionEndHandler(event) {
+        if (event.propertyName !== 'transform') {
+          return;
+        }
+
+        // reset the capture photo element when it is closed
+        if (!event.target.classList.contains('open') && event.target.selected === 'capture-photo') {
+          this.shCapturePhotoElement.reset();
+        }
+
+        // when the map is the current screen, move the user to the correct task
+        if (!event.target.classList.contains('open') && event.target.selected === 'capture-photo' && this.partyIslandOpen === '') {
+          this.currentTask = this.lastCompletedTask + 1;
+
+          if (this.currentTask > this.mapTasks.length) {
+            this.fireNavItemSelectedEvent({
+              navItem: 'congrats'
+            });
+
+            window.scrollTo(0, 0);
+
+            this.currentTask = 'party';
+          }
+        }
+      }
+
+      _computeIndexPlusOne(index) {
+        return index + 1;
+      }
+
+      _computeStageCurrent(stage, currentTask) {
+        return stage === currentTask ? 'stage--current' : '';
+      }
+
+      _computeStageCompleted(completed) {
+        return completed ? 'stage--done' : '';
+      }
+
+      _computeUserClass() {
+        if (!this.mapTasks.length) {
+          return;
+        }
+
+        this.mapTasks.forEach(task => {
+          if (task.completed) {
+            this.lastCompletedTask = task.stage;
+          }
+        });
+
+        if (this.firstLoad) {
+          this.currentTask = this.lastCompletedTask + 1;
+          this.firstLoad = false;
+
+          if (this.currentTask > this.mapTasks.length) {
+            this.currentTask = 'party';
+          }
+        }
+      }
+
+      _gameStateChanged(gameState) {
+        if (gameState === 'game-over') {
+          console.log('show the gameover screen');
+          this.navItem = 'gameover';
+          this.panelOpen = 'open';
+        } else {
+          this.panelOpen = '';
+        }
+      }
+
+      _computeDisableGameoverClose(gameState) {
+        return gameState === 'game-over';
+      }
+
+      _panelOpenChanged(panel) {
+        this.showFooter = (panel === 'open') ? '' : 'closed';
+      }
+
+      _showFooter(panel, partyIsland, gameState) {
+        if (gameState === 'game-over') {
+          this.showFooter = 'closed';
+          return;
+        }
+
+        if (panel === 'open' || partyIsland === 'open') {
+          this.showFooter = '';
+          return;
+        }
+
+        this.showFooter = 'closed';
+      }
+    }
+
+    window.customElements.define(ShMain.is, ShMain);
+  </script>
+</dom-module>

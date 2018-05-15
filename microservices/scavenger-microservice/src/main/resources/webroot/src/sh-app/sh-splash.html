@@ -1,0 +1,238 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="sh-splash">
+  <template>
+    <style>
+      :host {
+        display: block;
+        box-sizing: border-box;
+        background-color: #fff7c0;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        background-image: url(../../images/game-dashboard-clouds.svg),
+        url(../../images/hills.svg);
+        background-repeat: no-repeat;
+        background-size: 100%, 60%;
+        background-position: 0 0, bottom left;
+      }
+
+      :host(.storm) {
+        background-color: rgba(0, 0, 0, 0.5);
+        position: relative;
+        filter: grayscale(.8);
+      }
+
+      :host(.storm) .cloud {
+        background: white;
+        z-index: 2;
+        padding: 1rem 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 0 20px rgba(0,0,0,.1);
+        animation: grow-n-flip .5s ease-out forwards;
+      }
+
+      :host(.storm) .cloud-change {
+        animation: grow-n-flip 2.5s ease forwards;
+      }
+
+      .lightning {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #fff;
+        z-index: 1;
+        animation: lightning 2.5s ease infinite;
+      }
+
+      @keyframes grow-n-flip {
+        100% {
+          transform: rotateX(360deg) scale3d(1.4, 1.4, 1);
+        }
+      }
+
+      @keyframes lightning {
+        0% {
+          filter: opacity(1)
+        }
+        2% {
+          filter: opacity(0)
+        }
+        4% {
+          filter: opacity(1)
+        }
+        8% {
+          filter: opacity(0)
+        }
+        12% {
+          filter: opacity(1)
+        }
+        16% {
+          filter: opacity(0)
+        }
+        18% {
+          filter: opacity(1)
+        }
+        22% {
+          filter: opacity(0)
+        }
+        80% {
+          filter: opacity(0)
+        }
+        100% {
+          filter: opacity(1)
+        }
+      }
+
+      .logo {
+        height: 100%;
+        padding: 0 1rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      img,
+      svg {
+        width: 100%;
+        height: auto;
+        margin-bottom: 2rem;
+      }
+
+      h1,
+      h2 {
+        font-size: 24px;
+        color: red;
+        font-family: 'Press Start 2P', cursive;
+        font-smooth: never;
+        -webkit-font-smoothing: none;
+        font-weight: normal;
+        margin: 0;
+        text-transform: uppercase;
+        line-height: 1.3;
+        text-align: center;
+      }
+
+      h1 {
+        margin-bottom: 1rem;
+      }
+
+      h2 {
+        font-size: 16px;
+      }
+
+      p {
+        text-align: center;
+        font-size: 1rem;
+        line-height: 1.2;
+        margin: 0 0 1rem 0;
+        font-family: "overpass", "Overpass";
+        color: rgba(0, 0, 0, .4);
+        font-size: .8rem;
+        text-transform: uppercase;
+      }
+
+      strong {
+        display: block;
+        color: rgba(0, 0, 0, .9);
+        font-weight: normal;
+        font-size: 1.4rem;
+        text-transform: none;
+      }
+    </style>
+
+    <template is="dom-if" if="[[_computeShowLightning(gameState)]]" restamp="true">
+      <div class="lightning"></div>
+    </template>
+
+    <div class="logo">
+
+      <img src="images/logo.png" alt="Scavenger Hunt logo">
+
+
+      <template is="dom-if" if="[[!user.playerId]]" restamp="true">
+        <h2>READY PLAYER ONE</h2>
+      </template>
+
+      <template is="dom-if" if="[[_computeShowPlayerNameLobby(user, gameState)]]" restamp="true">
+        <p>Welcome, I shall call you</p>
+        <h1>[[user.username]]</h1>
+        <p>you are on cloud <strong>[[user.dataCenter]]</strong></p>
+        <p>we'll start soon</p>
+      </template>
+
+      <template is="dom-if" if="[[_computeShowPause(user, gameState)]]" restamp="true">
+        <h1>PAUSED</h1>
+        <p>Username
+          <strong>[[user.username]]</strong>
+        </p>
+        <p class="cloud">Cloud
+          <strong>[[user.dataCenter]]</strong>
+        </p>
+        <p>Score
+          <strong>[[user.score]]</strong>
+        </p>
+      </template>
+
+      <template is="dom-if" if="[[_computeShowStorm(user, gameState)]]" restamp="true">
+        <h1>PAUSED</h1>
+        <p>Username
+          <strong>[[user.username]]</strong>
+        </p>
+        <p class="cloud">Cloud
+          <strong>[[user.dataCenter]]</strong>
+        </p>
+        <p>Score
+          <strong>[[user.score]]</strong>
+        </p>
+      </template>
+    </div>
+  </template>
+
+  <script>
+    class ShSplash extends Polymer.Element {
+      static get is() { return 'sh-splash'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object
+          },
+          gameState: {
+            type: String,
+            observer: '_gameStateChanged'
+          }
+        };
+      }
+
+      _computeShowPlayerNameLobby(user, gameState) {
+        return user && gameState === 'lobby';
+      }
+
+      _computeShowPause(user, gameState) {
+        return user && gameState === 'pause';
+      }
+
+      _computeShowStorm(user, gameState) {
+        return user && gameState === 'storm';
+      }
+
+      _gameStateChanged(gameState) {
+        if (gameState === 'storm') {
+          this.classList.add('storm');
+        } else {
+          this.classList.remove('storm');
+        }
+      }
+
+      _computeShowLightning(gameState) {
+        return gameState === 'storm';
+      }
+    }
+
+    window.customElements.define(ShSplash.is, ShSplash);
+  </script>
+</dom-module>

@@ -1,0 +1,99 @@
+{
+
+  "data-center": "localhost",
+
+  "locations": {
+    "localhost": {
+      "s3-enable": false,
+      "jdg-enable": true,
+      "jdg-url": "localhost",
+      "fake-score": true
+    }
+
+  },
+
+  "admin-socket-token": "foo",
+
+  "tasks": {
+    "ee95d096-5e9a-4d4a-bcac-488d6436e47f" : {
+      "description": "Red Hat logo",
+      "type": "map",
+      "stage": 1,
+      "object": "hat",
+      "point": 10
+    },
+    "0117da38-116d-4ad1-a6c5-e7c834d01b19" : {
+      "description": "Bicycle",
+      "type": "map",
+      "stage": 2,
+      "object": "bike",
+      "point": 5
+    },
+    "492638cc-605b-4fca-8b44-e7fd9f04d728" : {
+      "description": "Street sign",
+      "type": "map",
+      "stage": 3,
+      "object": "sign",
+      "point": 10
+    },
+    "6c570fd2-76b9-438c-89fa-39730ad7e3c7" : {
+      "description": "Chair",
+      "type": "map",
+      "stage": 4,
+      "object": "chair",
+      "point": 10
+    },
+    "fe01b5d8-3f66-4c0f-bc9e-f7ee9fe033c2" : {
+      "description": "Basketball",
+      "type": "map",
+      "stage": 5,
+      "object": "ball",
+      "point": 10
+    },
+    "d0bb6b9a-8aed-4d94-8789-4c809c1782c4" : {
+      "description": "Stapler",
+      "type": "map",
+      "stage": 6,
+      "object": "stapler",
+      "point": 15
+    },
+    "d6c33a1a-fde7-4134-b058-027395353aac" : {
+      "description": "Bus",
+      "type": "map",
+      "stage": 7,
+      "object": "bus",
+      "point": 5
+    },
+    "ce8e619f-e36b-4245-9b0a-d3e9a26d0684" : {
+      "description": "Cat",
+      "type": "map",
+      "stage": 8,
+      "object": "cat",
+      "point": 10
+    },
+    "13f634e2-32c8-4c40-93b2-eabcf1259bf2" : {
+      "description": "Kyle's dog",
+      "type": "partyisland",
+      "object": "dog",
+      "point": 25
+    },
+    "d1eea44d-5b59-44a8-b77c-77532da51e8b" : {
+      "description": "Clement's rabbit",
+      "type": "partyisland",
+      "object": "rabbit",
+      "point": 50
+    },
+    "5e88020e-02be-4d70-88a1-b432d0114b3f" : {
+      "description": "Galder's dog",
+      "type": "partyisland",
+      "object": "dog",
+      "point": 10
+    },
+    "e81f3308-d97d-4f40-b5b0-e228e70ec18f" : {
+      "description": "Burr's penguin",
+      "type": "partyisland",
+      "object": "penguins",
+      "point": 100
+    }
+  }
+}

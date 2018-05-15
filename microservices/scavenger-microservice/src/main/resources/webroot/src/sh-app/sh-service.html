@@ -1,0 +1,224 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="sh-service">
+  <script>
+    class ShService extends Polymer.Element {
+      static get is() { return 'sh-service'; }
+      static get properties() {
+        return {
+          user: {
+            type: Object,
+            value: null,
+            notify: true
+          },
+          ws: {
+            type: Object,
+            value: null
+          },
+          socketUrl: {
+            type: String,
+            value: () => {
+              if (location.hostname.includes('redhatkeynote.com')) {
+                return 'wss://redhatkeynote.com/game';
+              }
+
+              if (location.hostname.includes('scavenger-hunt-microservice.apps.summit-aws.sysdeseng.com')) {
+                return 'wss://scavenger-hunt-microservice-scavenger-hunt-microservice.apps.summit-aws.sysdeseng.com/game';
+              }
+
+              if (location.hostname.includes('scavenger-hunt-microservice.apps.summit-azr.sysdeseng.com')) {
+                return 'wss://scavenger-hunt-microservice-scavenger-hunt-microservice.apps.summit-azr.sysdeseng.com/game';
+              }
+
+              if (location.hostname.includes('scavenger-hunt-microservice.apps.summit-gce.sysdeseng.com')) {
+                return 'wss://scavenger-hunt-microservice-scavenger-hunt-microservice.apps.summit-gce.sysdeseng.com/game';
+              }
+
+              return 'ws://localhost:8080/game';
+            }
+          },
+          socketClosed: {
+            type: Boolean,
+            value: false
+          },
+          reconnectTries: {
+            type: Number,
+            value: 0
+          },
+          maxReconnectTries: {
+            type: Number,
+            value: 10
+          },
+          retryInterval: {
+            type: Number,
+            value: 3000
+          },
+          mapTasks: {
+            type: Array,
+            value: [],
+            notify: true
+          },
+          partyIslandTasks: {
+            type: Array,
+            value: [],
+            notify: true
+          },
+          lastScore: {
+            type: Object,
+            notify: true
+          },
+          lastPing: {
+            type: Number,
+            value: 0
+          },
+          gameState: {
+            type: String,
+            notify: true
+          }
+        };
+      }
+
+      constructor() {
+        super();
+
+        this.onOpen = this.onOpen.bind(this);
+        this.onClose = this.onClose.bind(this);
+        this.onMessage = this.onMessage.bind(this);
+        this.updateScore = this.updateScore.bind(this);
+        this.ping = this.ping.bind(this);
+      }
+
+      connectToSocket() {
+        console.log('Connecting to socket');
+        this.ws = new WebSocket(this.socketUrl);
+
+        this.ws.onopen = this.onOpen;
+        this.ws.onclose = this.onClose;
+        this.ws.onmessage = this.onMessage;
+      }
+
+      onOpen(event) {
+        this.socketClosed = false;
+        this.reconnectTries = 0;
+
+        const message = {
+          type: 'connection',
+          token: ShAuth.keycloak.token,
+          email: ShAuth.keycloak.tokenParsed.email
+        };
+
+        if (this.user.playerId) {
+          message.playerId = this.user.playerId
+        }
+
+        this.sendMessage(message);
+      }
+
+      onClose(event) {
+        console.log('Socket closed', event);
+        this.socketClosed = true;
+
+        if (this.connectInterval) {
+          return;
+        }
+
+        this.connectInterval = setInterval(() => {
+          if (this.socketClosed && this.reconnectTries < this.maxReconnectTries) {
+            this.connectToSocket();
+            this.reconnectTries += 1;
+            return;
+          }
+
+          clearInterval(this.connectInterval);
+          this.connectInterval = null;
+          this.reconnectTries = 0;
+        }, this.retryInterval);
+      }
+
+      sendMessage(message) {
+        if (this.ws.readyState !== this.ws.OPEN) {
+          console.log('Unable to send message. The web socket is not open');
+          return;
+        }
+
+        this.ws.send(JSON.stringify(message));
+      }
+
+      onMessage(event) {
+        const data = JSON.parse(event.data);
+
+        switch (data.type) {
+          case 'configuration':
+            this.configure(data);
+            break;
+
+          case 'score':
+            this.updateScore(data);
+            break;
+
+          default:
+        }
+      }
+
+      configure(data) {
+        this.set('gameState', data.game);
+        this.set('user.dataCenter', data['data-center']);
+        this.set('user.playerId', data.playerId);
+        this.set('user.username', data.username);
+        this.set('user.score', data.score);
+
+        const tasks = Object.keys(data.tasks).map(key => {
+          let task = data.tasks[key];
+          task.id = key;
+
+          if (data.achievements && data.achievements.length) {
+            data.achievements.forEach(achievement => {
+              if (achievement.taskId === task.id) {
+                task.completed = true;
+              }
+            });
+          }
+
+          return task;
+        });
+
+        this.set('mapTasks', tasks.filter(task => task.type === 'map').sort((a, b) => a.stage - b.stage));
+        this.set('partyIslandTasks', tasks.filter(task => task.type === 'partyisland'));
+
+        const customEvent = new CustomEvent('user-configured', {
+          detail: {
+            user: this.user
+          },
+          bubbles: true,
+          composed: true
+        });
+
+        this.dispatchEvent(customEvent);
+
+        requestAnimationFrame(this.ping);
+      }
+
+      updateScore(data) {
+        this.user.score = data.total;
+        this.notifyPath('user.score');
+        this.set('lastScore', data);
+      }
+
+      ping(now) {
+        if (!this.lastPing || now - this.lastPing >= 20 * 1000) {
+          this.lastPing = now;
+
+          const message = {
+            type: 'ping'
+          };
+
+          this.sendMessage(message);
+        }
+
+        requestAnimationFrame(this.ping);
+      }
+    }
+
+    window.customElements.define(ShService.is, ShService);
+  </script>
+</dom-module>

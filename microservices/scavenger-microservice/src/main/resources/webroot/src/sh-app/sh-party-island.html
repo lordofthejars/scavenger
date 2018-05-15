@@ -1,0 +1,132 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="sh-party-island">
+  <template>
+    <style>
+      :host {
+        display: block;
+        box-sizing: border-box;
+        color: #828D93;
+        background-color: #fff;
+      }
+
+      .header {
+        text-align: center;
+        background-image: linear-gradient(to bottom, #93eaf9, #53eaf9);
+        background-color: #53eaf9;
+        margin: -2rem -2rem 0 -2rem;
+        padding: 1.5rem 2rem 3rem 2rem;
+        box-sizing: border-box;
+        position: relative;
+      }
+
+      .header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: -1px;
+        width: 100%;
+        background-image: url(/images/clouds-top.svg);
+        background-position: bottom center;
+        background-repeat: no-repeat;
+        background-size: 110% auto;
+      }
+
+      .header img {
+        display: inline-block;
+        width: 118px;
+      }
+
+      h1 {
+        margin: 1rem 0 .5rem 0;
+        color: #3bcbf8;
+        text-shadow: 2px 2px 0 #027f7f;
+        font-family: 'bangers', sans-serif;
+        letter-spacing: 2px;
+        text-align: center;
+        position: relative;
+      }
+
+      ul {
+        padding: 0;
+        list-style: none;
+        margin: 0;
+        margin-bottom: 50px;
+      }
+
+      li {
+        display: flex;
+        align-items: center;
+        padding: 1.3rem 0rem;
+      }
+
+
+      .stage {
+        border: 3px solid #E3E4E4;
+        border-radius: 50%;
+        height: 25px;
+        width: 25px;
+        margin-right: 1rem;
+      }
+
+      .stage--done {
+        background-color: #409B34;
+        background-position: center center;
+        background-repeat: no-repeat;
+        border-color: transparent;
+        background-image: url(/images/checkmark.svg);
+      }
+    </style>
+
+    <div class="header">
+      <img src="/images/ico-party-island.png" alt="Party island: Icon of a circus tent">
+    </div>
+
+    <h1>Party Island</h1>
+
+    <ul>
+      <template is="dom-repeat" items="{{tasks}}" as="task" index-as="index">
+        <li on-click="capturePhoto">
+          <template is="dom-if" if="[[!task.completed]]" restamp="true">
+            <div class="stage"></div>
+          </template>
+          <template is="dom-if" if="[[task.completed]]" restamp="true">
+            <div class="stage stage--done"></div>
+          </template>
+          Find [[task.description]]
+        </li>
+      </template>
+    </ul>
+  </template>
+
+  <script>
+    class ShPartyIsland extends Polymer.Element {
+      static get is() { return 'sh-party-island'; }
+      static get properties() {
+        return {
+          tasks: {
+            type: Array,
+            value: []
+          }
+        };
+      }
+
+      capturePhoto(event) {
+        const customEvent = new CustomEvent('nav-item-selected', {
+          detail: {
+            navItem: 'capture-photo',
+            tasksArray: 'partyIslandTasks',
+            selectedTaskIndex: event.model.index
+          },
+          bubbles: true,
+          composed: true
+        });
+
+        this.dispatchEvent(customEvent);
+      }
+    }
+
+    window.customElements.define(ShPartyIsland.is, ShPartyIsland);
+  </script>
+</dom-module>

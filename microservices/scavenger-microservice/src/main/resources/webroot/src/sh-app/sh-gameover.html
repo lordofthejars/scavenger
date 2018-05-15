@@ -1,0 +1,129 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="./sh-avatar.html">
+
+<dom-module id="sh-gameover">
+  <template>
+    <style>
+      :host {
+        display: block;
+        box-sizing: border-box;
+        min-height: 100%;
+        color: #666;
+      }
+
+      .header {
+        text-align: center;
+        background-image: linear-gradient(to bottom, #93eaf9, #53eaf9);
+        background-color: #53eaf9;
+        margin: -2rem -2rem 0 -2rem;
+        padding: 1.5rem 2rem 3rem 2rem;
+        box-sizing: border-box;
+        position: relative;
+      }
+
+      .header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: -1px;
+        width: 100%;
+        background-image: url(/images/clouds-top.svg);
+        background-position: bottom center;
+        background-repeat: no-repeat;
+        background-size: 110% auto;
+      }
+
+      .header img {
+        display: inline-block;
+        width: 118px;
+      }
+
+      .body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      sh-avatar {
+        height: 100px;
+        width: 100px;
+      }
+
+      h1 {
+        margin: 1rem 0 1rem 0;
+        color: #3bcbf8;
+        text-shadow: 2px 2px 0 #027f7f;
+        font-family: 'bangers', sans-serif;
+        letter-spacing: 2px;
+        text-align: center;
+        position: relative;
+      }
+
+      h2 {
+        margin: 0;
+        color: #444;
+      }
+
+      p {
+        text-align: center;
+        margin-top: 0;
+        margin-bottom: 0rem;
+      }
+
+      .name {
+        text-align: center;
+      }
+
+      .name h2 {
+        margin-bottom: 0;
+      }
+
+      .name p {
+        margin-top: 0;
+        margin-bottom: 0rem;
+      }
+
+      .name p:last-of-type {
+        margin-bottom: 1rem;
+        color: rgba(0, 0, 0, .3);
+      }
+    </style>
+
+    <div class="header">
+      <img src="/images/ico-leaders.png" alt="Leaderboard: Icon of a trpphy">
+    </div>
+
+    <div class="body">
+      <h1>Game Over!</h1>
+      <!-- <sh-avatar email="[[user.email]]"></sh-avatar> -->
+      <div class="name">
+        <p>Your username is</p>
+        <h2>[[user.username]]</h2>
+        <template is="dom-if" if="[[user.name]]" restamp="true">
+          <p>[[user.name]]</p>
+        </template>
+        <p>[[user.email]]</p>
+      </div>
+      <!-- <p>Thank you for playing with us!</p> -->
+      <p>Be sure to check the leaderboard to see if you're in the Top 10.</p>
+    </div>
+  </template>
+
+  <script>
+    class ShGameover extends Polymer.Element {
+      static get is() { return 'sh-gameover'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object
+          }
+        };
+      }
+    }
+
+    window.customElements.define(ShGameover.is, ShGameover);
+  </script>
+</dom-module>

@@ -1,0 +1,12 @@
+---
+apiVersion: v1
+kind: Route
+metadata:
+  name: score-gateway
+spec:
+  port:
+    targetPort: 8080
+  to:
+    kind: Service
+    name: score-gateway
+    
