@@ -182,7 +182,7 @@ public class FeedVerticle extends AbstractVerticle {
                 cb.addServer()
                     .host(host)
                     .port(port);
-                cb.maxRetries(999).connectionTimeout(60000);
+                cb.maxRetries(3).connectionTimeout(60000);
                 future.complete(new RemoteCacheManager(cb.build()));
             }
         );
