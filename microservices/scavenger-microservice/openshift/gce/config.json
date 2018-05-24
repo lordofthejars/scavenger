@@ -9,12 +9,14 @@
 
   "locations": {
     "localhost": {
+      "s3-client-class": "me.escoffier.keynote.s3.LocalFsClient",
       "s3-enable": false,
       "jdg-enable": false,
       "fake-score": true
     },
     "Private": {
       "s3-enable": true,
+      "s3-client-class": "me.escoffier.keynote.s3.GlusterClient",
       "s3-urls": [
         "http://storage-gce1.summit-gce.sysdeseng.com:8080/v1/AUTH_gv0/bucket4",
         "http://storage-gce2.summit-gce.sysdeseng.com:8080/v1/AUTH_gv0/bucket5",

@@ -1,4 +1,4 @@
-package me.escoffier.keynote;
+package me.escoffier.keynote.s3;
 
 import java.util.Collections;
 import java.util.List;
@@ -15,7 +15,7 @@ public class RoundRobin<T> {
         this.list = Collections.unmodifiableList(list);
     }
 
-    public T get() {
+    public synchronized T get() {
         T item = list.get(current);
         current = current + 1;
         if (current >= list.size()) {

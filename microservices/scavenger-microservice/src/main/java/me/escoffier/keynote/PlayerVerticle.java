@@ -57,7 +57,7 @@ public class PlayerVerticle extends AbstractVerticle {
 
 
     @Override
-    public void start(Future<Void> future) {
+    public void start(Future<Void> future) throws Exception {
         dcName = config().getString("data-center", "local-cluster");
 
         pictures = new PictureRepository(vertx, config());

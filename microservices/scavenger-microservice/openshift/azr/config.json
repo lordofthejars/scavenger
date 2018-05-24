@@ -9,12 +9,14 @@
 
   "locations": {
     "localhost": {
+      "s3-client-class": "me.escoffier.keynote.s3.LocalFsClient",
       "s3-enable": false,
       "jdg-enable": false,
       "fake-score": true
     },
     "Azure": {
       "s3-enable": true,
+      "s3-client-class": "me.escoffier.keynote.s3.GlusterClient",
       "s3-urls": [
         "http://azr-storage1.southcentralus.cloudapp.azure.com:8080/v1/AUTH_gv0/bucket7",
         "http://azr-storage2.southcentralus.cloudapp.azure.com:8080/v1/AUTH_gv0/bucket8",

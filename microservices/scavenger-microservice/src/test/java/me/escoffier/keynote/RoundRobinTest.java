@@ -1,5 +1,6 @@
 package me.escoffier.keynote;
 
+import me.escoffier.keynote.s3.RoundRobin;
 import org.junit.Test;
 
 import java.util.Arrays;
