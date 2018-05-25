@@ -27,6 +27,10 @@ if [[ $PROJECT = *"summit-gce"* ]]; then
 elif [[ $PROJECT = *"summit-azr"* ]]; then
     info "[OpenWhisk] Using Azure" 
     HOST="openwhisk-openwhisk.apps.summit-azr.sysdeseng.com"
+elif [[ $PROJECT = *"workspace7"* ]]; then
+    info "[OpenWhisk] Using Workspace 7"
+    HOST="openwhisk-openwhisk.apps.workspace7.org"
+    TOKEN="789c46b1-71f6-4ed5-8c54-816aa4f8c502:F082iqnYlvcQmdMAYBAfvGYxlVqRgYDDcQiLtXE1Ad02HOqmxCawHRlfoST8Rh2S"
 fi
 
 
@@ -41,7 +45,7 @@ function warning {
 function delete {
     TYPE=$1
     NAME=$2
-    if wsk "${TYPE}" delete "${NAME}"; then 
+    if wsk -i "${TYPE}" delete "${NAME}"; then
         info "Deleted ${TYPE} named ${NAME}"
     else 
         warning "Deletion of ${TYPE} named ${NAME} failed"

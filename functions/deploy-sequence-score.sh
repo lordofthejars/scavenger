@@ -4,7 +4,7 @@ set -e
 source "./openwhisk-env.sh"
 
 export DIR="function-b-alt"
-export INFINISPAN_URL="jdg-app-hotrod.datagrid.svc"
+export INFINISPAN_URL="jdg-app-hotrod.datagrid-stage.svc"
 export FETCH_ACTION_NAME="fetchImage"
 export PERSIST_ACTION_NAME="persistScore"
 export SCORE_ACTION_NAME="scoreImage"

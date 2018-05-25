@@ -1,4 +1,4 @@
-FROM redhat-openjdk-18/openjdk18-openshift:1.3-4
+FROM fabric8/java-alpine-openjdk8-jre:latest
 
 EXPOSE 8080
 

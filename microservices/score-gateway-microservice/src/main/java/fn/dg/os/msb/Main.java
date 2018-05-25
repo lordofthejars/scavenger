@@ -380,7 +380,7 @@ public class Main extends AbstractVerticle implements Handler<ServerWebSocket> {
                 .addServer()
                 //.host("jdg-app-hotrod")
                 //.host("infinispan-app-hotrod")
-                .host("jdg-app-hotrod.datagrid")
+                .host("jdg-app-hotrod.datagrid-stage.svc")
                 .port(11222)
                 .marshaller(ProtoStreamMarshaller.class)
                 .build()
@@ -391,7 +391,7 @@ public class Main extends AbstractVerticle implements Handler<ServerWebSocket> {
                 .addServer()
                 //.host("jdg-app-hotrod")
                 //.host("infinispan-app-hotrod")
-                .host("jdg-app-hotrod.datagrid")
+                .host("jdg-app-hotrod.datagrid-stage.svc")
                 .port(11222)
                 .build()
         );

@@ -18,6 +18,10 @@
           socketUrl: {
             type: String,
             value: () => {
+              if (location.hostname.includes('workspace7')) {
+                return 'wss://scavenger-hunt-microservice-scavenger-hunt-microservice.apps.workspace7.org/game';
+              }
+
               if (location.hostname.includes('redhatkeynote.com')) {
                 return 'wss://redhatkeynote.com/game';
               }

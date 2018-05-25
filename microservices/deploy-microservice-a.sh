@@ -4,7 +4,7 @@ set -e
 source ./microservice-env.sh
 
 export DIR="scavenger-microservice"
-export CONFIG="openshift/aws"
+export CONFIG="openshift/config"
 export APP_NAME="scavenger-hunt-microservice"
 
 cd "${DIR}"
@@ -17,9 +17,12 @@ if [[ $PROJECT = *"summit-gce"* ]]; then
 elif [[ $PROJECT = *"summit-azr"* ]]; then
     info "[Game Server] Using AZURE configuration" 
     CONFIG="openshift/azr"
-else 
-    info "[Game Server] Using AWS configuration" 
+elif [[ $PROJECT = *"summit-aws"* ]]; then
+    info "[Game Server] Using AWS configuration"
     CONFIG="openshift/aws"
+else
+    info "[Game Server] Using default configuration"
+    CONFIG="openshift/config"
 fi
 
 info "[Game Server] Using config: ${CONFIG}"
@@ -52,9 +55,6 @@ echo -e "🔧  [Game Server] Creating deployment config, service and route if ne
 
 if oc apply -f openshift/deployment.yaml; then 
     info "[Game Server] Deployment created for ${APP_NAME}"
-fi
-if oc apply -f openshift/mail-secret.yaml; then 
-    info "[Game Server] Mail secrets created for ${APP_NAME}"
 fi
 if oc apply -f openshift/service.yaml; then 
     info "[Game Server] Service created for ${APP_NAME}"

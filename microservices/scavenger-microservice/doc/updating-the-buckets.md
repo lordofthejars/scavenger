@@ -37,7 +37,7 @@ Edit the `openshift/_provider_/config.json` file:
       ],
       "s3-auth-token": "BOGUS",
       "jdg-enable": true,
-      "jdg-url": "jdg-app-hotrod.datagrid.svc",
+      "jdg-url": "jdg-app-hotrod.datagrid-stage.svc",
       "fake-score": false,
 
       "sso-enable": true,

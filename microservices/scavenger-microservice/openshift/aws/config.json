@@ -23,7 +23,7 @@
       ],
       "s3-auth-token": "BOGUS",
       "jdg-enable": true,
-      "jdg-url": "jdg-app-hotrod.datagrid.svc",
+      "jdg-url": "jdg-app-hotrod.datagrid-stage.svc",
       "fake-score": false,
       "sso-enable": true,
       "sso-cert-url": "https://secure-sso-sso.apps.summit-aws.sysdeseng.com/auth/realms/summit/protocol/openid-connect/certs",

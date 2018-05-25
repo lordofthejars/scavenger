@@ -24,7 +24,7 @@
       ],
       "s3-auth-token": "BOGUS",
       "jdg-enable": true,
-      "jdg-url": "jdg-app-hotrod.datagrid.svc",
+      "jdg-url": "jdg-app-hotrod.datagrid-stage.svc",
       "fake-score": false,
       "leader-board-url": "http://score-gateway.scavenger-hunt-microservice.svc:8080/rank"
     }

@@ -1,34 +1,22 @@
 {
   "data-center": "Private",
-
   "clouds": {
-    "google": "scavenger-hunt-microservice-scavenger-hunt-microservice.apps.summit-gce.sysdeseng.com",
-    "azure": "scavenger-hunt-microservice-scavenger-hunt-microservice.apps.summit-azr.sysdeseng.com",
-    "amazon": "scavenger-hunt-microservice-scavenger-hunt-microservice.apps.summit-aws.sysdeseng.com"
+    "google": "scavenger-hunt-microservice-scavenger-hunt-microservice.apps.summit-gce.sysdeseng.com"
   },
-
   "locations": {
-    "localhost": {
-      "s3-client-class": "me.escoffier.keynote.s3.LocalFsClient",
-      "s3-enable": false,
-      "jdg-enable": false,
-      "fake-score": true
-    },
     "Private": {
-      "s3-enable": true,
       "s3-client-class": "me.escoffier.keynote.s3.GlusterClient",
+      "s3-enable": true,
       "s3-urls": [
-        "http://storage-gce1.summit-gce.sysdeseng.com:8080/v1/AUTH_gv0/bucket4",
-        "http://storage-gce2.summit-gce.sysdeseng.com:8080/v1/AUTH_gv0/bucket5",
-        "http://storage-gce3.summit-gce.sysdeseng.com:8080/v1/AUTH_gv0/bucket6"
+        "http://storage-aws1.sysdeseng.com:8080/v1/AUTH_gv0/bucket1",
+        "http://storage-aws2.sysdeseng.com:8080/v1/AUTH_gv0/bucket2",
+        "http://storage-aws3.sysdeseng.com:8080/v1/AUTH_gv0/bucket3"
       ],
       "s3-auth-token": "BOGUS",
       "jdg-enable": true,
       "jdg-url": "jdg-app-hotrod.datagrid-stage.svc",
       "fake-score": false,
-      "leader-board-url": "http://score-gateway.scavenger-hunt-microservice.svc:8080/rank",
-
-      "leaderboard-report-enable": true
+      "leader-board-url": "http://score-gateway.scavenger-hunt-microservice.svc:8080/rank"
     }
   },
   "admin-socket-token": "dGhpc19pc19hX3NlY3JldF9zdW1taXRfMTg=",

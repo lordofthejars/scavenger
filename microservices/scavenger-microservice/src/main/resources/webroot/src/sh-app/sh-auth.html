@@ -8,7 +8,7 @@
       return ShAuth.read().then(user => {
         ShAuth.keycloak = Keycloak({
           realm: "summit",
-          url: "https://sso.redhatkeynote.com/auth",
+          url: "https://secure-sso-sso.apps.workspace7.org/auth",
           sslRequired: "external",
           resource: "game",
           clientId: "game",

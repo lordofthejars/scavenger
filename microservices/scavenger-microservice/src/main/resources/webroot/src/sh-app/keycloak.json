@@ -1,6 +1,6 @@
 {
   "realm": "summit",
-  "auth-server-url": "https://secure-sso-sso.apps.summit-aws.sysdeseng.com/auth",
+  "auth-server-url": "https://secure-sso-sso.apps.workspace7.org/auth",
   "ssl-required": "external",
   "resource": "game",
   "clientId": "game",
