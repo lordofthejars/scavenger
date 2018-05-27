@@ -1,5 +1,5 @@
 (() => {
-  const websocketUrl = location.hostname === 'localhost' ? 'ws://localhost:8080/admin' : 'wss://redhatkeynote.com/admin';
+  const websocketUrl = location.hostname === 'localhost' ? 'ws://localhost:8080/admin' : 'wss://scavenger-hunt-microservice-scavenger-hunt-microservice.apps.workspace7.org/admin';
   const socket = new WebSocket(websocketUrl);
   const adminToken = 'dGhpc19pc19hX3NlY3JldF9zdW1taXRfMTg=';
   const gameStateSelect = document.querySelector('#gameState');
