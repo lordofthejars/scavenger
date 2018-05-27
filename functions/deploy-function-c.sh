@@ -31,7 +31,7 @@ echo -e "🔧  [Infinispan Feed] Deploying Infinispan Feed"
 cd "${FEED_PROVIDER_DIR}"
 echo -e "🔧  [Infinispan Feed] Building..."
 oc project openwhisk
-if oc apply -f openshift/volume-claim.yaml; then 
+if oc apply -f openshift/volume-claim.yaml; then
   echo -e "🔧  [Infinispan Feed] Volument declared for the infinispan feed"
 fi
 mvn clean fabric8:deploy -DskipTests > /tmp/infinispan-feed-build.log
@@ -47,17 +47,17 @@ wsk -i action update -a feed true infinispan-feed \
   target/infinispan-feed-action.jar \
   --main org.workspace7.openwhisk.InfinispanFeedAction \
   -p feedActionURL http://infinispan-feed.openwhisk.svc:8080
-echo "🔧  [Infinispan Feed Action] Deleting and creating trigger"  
+echo "🔧  [Infinispan Feed Action] Deleting and creating trigger"
 delete "trigger" "object-written"
 wsk -i trigger create object-written \
   --feed infinispan-feed \
   -p hotrod_server_host ${INFINISPAN_URL} \
   -p hotrod_port 11222 \
-  -p cache_name objects 
+  -p cache_name objects
 cd ..
 
 echo "🔧  [Forwarder] Deploying Function C"
-cd "${FN_DIR}/function-c"
+cd "${FN_DIR}"
 echo "🔧  [Forwarder] Building..."
 mvn clean package -DskipTests > /tmp/function-c-build.log
 echo "🔧  [Forwarder] Deploying action"
@@ -68,7 +68,7 @@ wsk -i action update compute-score \
 echo "🔧  [Forwarder] Deploying and enabling rule"
 delete "rule" "score-rule"
 wsk -i rule create score-rule object-written compute-score
-wsk rule enable score-rule
+wsk -i rule enable score-rule
 cd ../..
 
 echo -e "🥃  Done deploying function C"

@@ -3,3 +3,4 @@ microservices/scavenger-microservice/src/main/resources/webroot/build
 microservices/scavenger-microservice/src/main/resources/webroot/node_modules
 microservices/scavenger-microservice/org.infinispan.query.remote.impl.indexing.ProtobufValueWrapper
 microservices/scavenger-microservice/pictures
+dependency-reduced-pom.xml

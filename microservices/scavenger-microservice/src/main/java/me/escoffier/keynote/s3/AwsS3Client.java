@@ -63,6 +63,7 @@ public class AwsS3Client extends AbstractS3Client {
         accessKey = c.getString("s3-auth-access-key");
         secretAccessKey = c.getString("s3-auth-secret-access-key");
         client = WebClient.create(vertx, new WebClientOptions().setMaxPoolSize(100));
+        
     }
 
     @Override
