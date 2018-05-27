@@ -1,16 +1,16 @@
 {
   "data-center": "Private",
   "clouds": {
-    "google": "scavenger-hunt-microservice-scavenger-hunt-microservice.apps.summit-gce.sysdeseng.com"
+    "google": "scavenger-hunt-microservice-scavenger-hunt-microservice.apps.workspace7.org"
   },
   "locations": {
     "Private": {
       "s3-client-class": "me.escoffier.keynote.s3.GlusterClient",
       "s3-enable": true,
       "s3-urls": [
-        "http://storage-aws1.sysdeseng.com:8080/v1/AUTH_gv0/bucket1",
-        "http://storage-aws2.sysdeseng.com:8080/v1/AUTH_gv0/bucket2",
-        "http://storage-aws3.sysdeseng.com:8080/v1/AUTH_gv0/bucket3"
+        "http://35.200.227.118:8080/v1/AUTH_gv0/bucket1",
+        "http://35.200.227.118:8080/v1/AUTH_gv0/bucket2",
+        "http://35.200.227.118:8080/v1/AUTH_gv0/bucket3"
       ],
       "s3-auth-token": "BOGUS",
       "jdg-enable": true,
